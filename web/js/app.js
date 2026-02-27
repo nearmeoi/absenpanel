@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════
 // AbsenPanel — Shared JS
-// v1.1.0 — SPA + Auto-Deploy
+// v1.1.1 — Webhook Test 2
 // ═══════════════════════════════════════
 
 // Auth helper
