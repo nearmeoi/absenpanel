@@ -185,5 +185,127 @@ func MakeDir(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
-// Unused import guard
-var _ = io.Discard
+// ── Rename ──
+
+type RenameRequest struct {
+	Source  string `json:"source" binding:"required"`
+	NewName string `json:"newName" binding:"required"`
+}
+
+func RenameFile(c *gin.Context) {
+	var req RenameRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	srcFull, err := safePath(req.Source)
+	if err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+		return
+	}
+
+	parentDir := filepath.Dir(srcFull)
+	newFull := filepath.Join(parentDir, filepath.Base(req.NewName))
+
+	if !strings.HasPrefix(newFull, config.Cfg.BotDir) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "access denied"})
+		return
+	}
+
+	if err := os.Rename(srcFull, newFull); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to rename: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+// ── Copy / Move (Paste) ──
+
+type PasteRequest struct {
+	Action      string `json:"action" binding:"required"`
+	Source      string `json:"source" binding:"required"`
+	Destination string `json:"destination" binding:"required"`
+}
+
+func PasteFile(c *gin.Context) {
+	var req PasteRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	srcFull, err := safePath(req.Source)
+	if err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+		return
+	}
+
+	dstDir, err := safePath(req.Destination)
+	if err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+		return
+	}
+
+	srcName := filepath.Base(srcFull)
+	dstFull := filepath.Join(dstDir, srcName)
+
+	if req.Action == "cut" {
+		if err := os.Rename(srcFull, dstFull); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to move: " + err.Error()})
+			return
+		}
+	} else {
+		if err := copyPath(srcFull, dstFull); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to copy: " + err.Error()})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func copyPath(src, dst string) error {
+	info, err := os.Stat(src)
+	if err != nil {
+		return err
+	}
+	if info.IsDir() {
+		return copyDir(src, dst)
+	}
+	return copyFileFn(src, dst)
+}
+
+func copyFileFn(src, dst string) error {
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, in)
+	return err
+}
+
+func copyDir(src, dst string) error {
+	if err := os.MkdirAll(dst, 0755); err != nil {
+		return err
+	}
+	entries, err := os.ReadDir(src)
+	if err != nil {
+		return err
+	}
+	for _, e := range entries {
+		if err := copyPath(filepath.Join(src, e.Name()), filepath.Join(dst, e.Name())); err != nil {
+			return err
+		}
+	}
+	return nil
+}

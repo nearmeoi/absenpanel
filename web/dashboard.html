@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard — AbsenPanel</title>
     <link rel="stylesheet" href="/css/style.css">
-    
+
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 
@@ -54,9 +54,12 @@
                         <p style="font-size:13px;color:var(--text-muted)" id="uptimeText">Uptime: loading...</p>
                     </div>
                     <div class="btn-group">
-                        <button class="btn btn-success" onclick="botAction('start')"><i class="ph ph-play"></i> Start</button>
-                        <button class="btn btn-warning" onclick="botAction('restart')"><i class="ph ph-arrows-clockwise"></i> Restart</button>
-                        <button class="btn btn-danger" onclick="botAction('stop')"><i class="ph ph-stop"></i> Stop</button>
+                        <button class="btn btn-success" onclick="botAction('start')"><i class="ph ph-play"></i>
+                            Start</button>
+                        <button class="btn btn-warning" onclick="botAction('restart')"><i
+                                class="ph ph-arrows-clockwise"></i> Restart</button>
+                        <button class="btn btn-danger" onclick="botAction('stop')"><i class="ph ph-stop"></i>
+                            Stop</button>
                     </div>
                 </div>
 
@@ -122,7 +125,7 @@
 
     <script src="/js/app.js"></script>
     <script>
-        
+
         const token = localStorage.getItem('token');
         if (!token) window.location.href = '/login';
 
@@ -190,11 +193,28 @@
             }
         }
 
+        async function fetchLogs() {
+            try {
+                const data = await apiFetch('/api/bot/logs?lines=30');
+                const preview = document.getElementById('logPreview');
+                if (data.logs) {
+                    preview.innerHTML = escapeHtml(data.logs).replace(/\n/g, '<br>');
+                    preview.scrollTop = preview.scrollHeight;
+                } else {
+                    preview.innerHTML = '<div style="color:var(--text-muted)">No logs available</div>';
+                }
+            } catch (e) {
+                document.getElementById('logPreview').innerHTML = '<div style="color:var(--text-muted)">Could not load logs</div>';
+            }
+        }
+
         // Poll stats
         fetchStats();
         fetchBotStatus();
+        fetchLogs();
         setInterval(fetchStats, 5000);
         setInterval(fetchBotStatus, 10000);
+        setInterval(fetchLogs, 10000);
     </script>
 </body>
 

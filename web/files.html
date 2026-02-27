@@ -120,15 +120,16 @@
 
             for (const f of files) {
                 const icon = f.isDir ? '<i class="ph ph-folder"></i>' : getFileIcon(f.name);
+                const safePath = escapeHtml(f.path);
                 const clickAction = f.isDir
-                    ? `navigateTo('${f.path}')`
-                    : `openFile('${f.path}')`;
+                    ? `navigateTo('${safePath}')`
+                    : `openFile('${safePath}')`;
 
                 html += `<div class="file-item" onclick="${clickAction}">
             <span class="file-icon">${icon}</span>
-            <span class="file-name">${f.name}</span>
+            <span class="file-name">${escapeHtml(f.name)}</span>
             <span class="file-size">${f.isDir ? '—' : formatSize(f.size)}</span>
-            <span class="file-date">${f.modTime}</span>
+            <span class="file-date">${escapeHtml(f.modTime)}</span>
         </div>`;
             }
 

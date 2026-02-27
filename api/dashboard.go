@@ -132,3 +132,13 @@ func respondCmd(c *gin.Context, out []byte, err error) {
 	}
 	c.JSON(http.StatusOK, gin.H{"success": true, "output": string(out)})
 }
+
+func GetBotLogs(c *gin.Context) {
+	lines := c.DefaultQuery("lines", "50")
+	out, err := exec.Command("pm2", "logs", config.Cfg.BotName, "--nostream", "--lines", lines).CombinedOutput()
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{"logs": "Failed to get logs: " + err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"logs": string(out)})
+}

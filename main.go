@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
 
 	"absenpanel/api"
 	"absenpanel/auth"
@@ -48,13 +47,14 @@ func main() {
 		// Auth API (middleware skips auth for this path but sets jwt_secret)
 		authorized.POST("/api/auth/login", auth.LoginHandler)
 
-		// Pages
-		authorized.GET("/", func(c *gin.Context) { c.File("./web/dashboard.html") })
-		authorized.GET("/console", func(c *gin.Context) { c.File("./web/console.html") })
-		authorized.GET("/files", func(c *gin.Context) { c.File("./web/files.html") })
-		authorized.GET("/whatsapp", func(c *gin.Context) { c.File("./web/whatsapp.html") })
-		authorized.GET("/users", func(c *gin.Context) { c.File("./web/users.html") })
-		authorized.GET("/settings", func(c *gin.Context) { c.File("./web/settings.html") })
+		// SPA — all pages serve the same app shell
+		serveApp := func(c *gin.Context) { c.File("./web/app.html") }
+		authorized.GET("/", serveApp)
+		authorized.GET("/console", serveApp)
+		authorized.GET("/files", serveApp)
+		authorized.GET("/whatsapp", serveApp)
+		authorized.GET("/users", serveApp)
+		authorized.GET("/settings", serveApp)
 
 		// API
 		authorized.GET("/api/stats", api.GetStats)
@@ -63,6 +63,7 @@ func main() {
 		authorized.POST("/api/bot/stop", api.BotStop)
 		authorized.POST("/api/bot/restart", api.BotRestart)
 		authorized.POST("/api/bot/kill", api.BotKill)
+		authorized.GET("/api/bot/logs", api.GetBotLogs)
 
 		// File manager
 		authorized.GET("/api/files", api.ListFiles)
@@ -70,12 +71,17 @@ func main() {
 		authorized.POST("/api/files/write", api.WriteFile)
 		authorized.DELETE("/api/files", api.DeleteFile)
 		authorized.POST("/api/files/mkdir", api.MakeDir)
+		authorized.POST("/api/files/rename", api.RenameFile)
+		authorized.POST("/api/files/paste", api.PasteFile)
 
 		// Users
 		authorized.GET("/api/users", api.ListUsers)
 
 		// Terminal WebSocket
 		authorized.GET("/api/terminal", api.TerminalHandler)
+
+		// Auth actions
+		authorized.POST("/api/auth/change-password", auth.ChangePasswordHandler)
 	}
 
 	addr := fmt.Sprintf(":%d", cfg.Port)
@@ -83,6 +89,5 @@ func main() {
 
 	if err := r.Run(addr); err != nil {
 		log.Fatal("Failed to start server:", err)
-		os.Exit(1)
 	}
 }

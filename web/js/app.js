@@ -54,3 +54,10 @@ function showToast(message, type = 'success') {
     toast.className = `toast ${type} show`;
     setTimeout(() => { toast.classList.remove('show'); }, 3000);
 }
+
+// XSS protection — escape HTML entities
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}

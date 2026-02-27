@@ -79,9 +79,9 @@
                 for (const [phone, user] of Object.entries(users)) {
                     const u = typeof user === 'string' ? JSON.parse(user) : user;
                     html += `<tr>
-                <td>${phone}</td>
-                <td>${u.email || '—'}</td>
-                <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.template || '—'}</td>
+                <td>${escapeHtml(phone)}</td>
+                <td>${escapeHtml(u.email || '—')}</td>
+                <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(u.template || '—')}</td>
             </tr>`;
                 }
                 tbody.innerHTML = html;

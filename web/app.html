@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AbsenPanel</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.min.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10.0/lib/addon-fit.min.js"></script>
+</head>
+
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="logo">A</div>
+                <span>AbsenPanel</span>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <a href="/" data-page="dashboard" class="active"><i class="ph ph-squares-four icon"></i> Dashboard</a>
+                <a href="/console" data-page="console"><i class="ph ph-terminal icon"></i> Console</a>
+                <a href="/files" data-page="files"><i class="ph ph-folder icon"></i> Files</a>
+                <a href="/whatsapp" data-page="whatsapp"><i class="ph ph-whatsapp-logo icon"></i> WhatsApp</a>
+                <a href="/users" data-page="users"><i class="ph ph-users icon"></i> Users</a>
+                <a href="/settings" data-page="settings"><i class="ph ph-gear icon"></i> Settings</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info" onclick="logout()">
+                    <div class="avatar">A</div>
+                    <div>
+                        <div class="user-name">Admin</div>
+                        <div class="user-role">Sign out</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main content area — swapped by SPA router -->
+        <div class="main">
+            <div class="topbar">
+                <div class="page-title" id="pageTitle">Dashboard</div>
+                <div class="btn-group" id="topbarActions"></div>
+            </div>
+            <div class="content" id="pageContent">
+                <div style="color:var(--text-muted)">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="/js/app.js"></script>
+    <script src="/js/router.js"></script>
+    <script src="/js/pages/dashboard.js"></script>
+    <script src="/js/pages/console.js"></script>
+    <script src="/js/pages/files.js"></script>
+    <script src="/js/pages/whatsapp.js"></script>
+    <script src="/js/pages/users.js"></script>
+    <script src="/js/pages/settings.js"></script>
+    <script>
+        if (!localStorage.getItem('token')) {
+            window.location.href = '/login';
+        } else {
+            initRouter();
+        }
+    </script>
+</body>
+
+</html>
