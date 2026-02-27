@@ -6,14 +6,16 @@ import (
 )
 
 type Config struct {
-	Port      int
-	Env       string
-	JWTSecret string
-	DBPath    string
-	AdminUser string
-	AdminPass string
-	BotDir    string
-	BotName   string
+	Port          int
+	Env           string
+	JWTSecret     string
+	DBPath        string
+	AdminUser     string
+	AdminPass     string
+	BotDir        string
+	BotName       string
+	WebhookSecret string
+	AppDir        string
 }
 
 func getEnv(key, fallback string) string {
@@ -28,14 +30,16 @@ var Cfg *Config
 func Load() *Config {
 	port, _ := strconv.Atoi(getEnv("PANEL_PORT", "3001"))
 	Cfg = &Config{
-		Port:      port,
-		Env:       getEnv("PANEL_ENV", "development"),
-		JWTSecret: getEnv("PANEL_JWT_SECRET", "absenpanel-secret-change-me"),
-		DBPath:    getEnv("PANEL_DB_PATH", "./data/panel.db"),
-		AdminUser: getEnv("PANEL_ADMIN_USER", "admin"),
-		AdminPass: getEnv("PANEL_ADMIN_PASS", "admin"),
-		BotDir:    getEnv("BOT_DIR", "/home/ubuntu/absenbot"),
-		BotName:   getEnv("BOT_PM2_NAME", "absenbot"),
+		Port:          port,
+		Env:           getEnv("PANEL_ENV", "development"),
+		JWTSecret:     getEnv("PANEL_JWT_SECRET", "absenpanel-secret-change-me"),
+		DBPath:        getEnv("PANEL_DB_PATH", "./data/panel.db"),
+		AdminUser:     getEnv("PANEL_ADMIN_USER", "admin"),
+		AdminPass:     getEnv("PANEL_ADMIN_PASS", "admin"),
+		BotDir:        getEnv("BOT_DIR", "/home/ubuntu/absenbot"),
+		BotName:       getEnv("BOT_PM2_NAME", "absenbot"),
+		WebhookSecret: getEnv("WEBHOOK_SECRET", ""),
+		AppDir:        getEnv("APP_DIR", "/home/ubuntu/absenpanel"),
 	}
 	return Cfg
 }

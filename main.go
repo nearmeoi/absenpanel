@@ -39,6 +39,7 @@ func main() {
 
 	// Public routes
 	r.GET("/login", func(c *gin.Context) { c.File("./web/login.html") })
+	r.POST("/api/webhook/deploy", api.DeployWebhook)
 
 	// Protected routes
 	authorized := r.Group("/")
