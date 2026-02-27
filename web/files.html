@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Files — AbsenPanel</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="logo">A</div><span>AbsenPanel</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/"><span class="icon">📊</span> Dashboard</a>
+                <a href="/console"><span class="icon">🖥️</span> Console</a>
+                <a href="/files" class="active"><span class="icon">📁</span> Files</a>
+                <a href="/whatsapp"><span class="icon">💬</span> WhatsApp</a>
+                <a href="/users"><span class="icon">👥</span> Users</a>
+                <a href="/settings"><span class="icon">⚙️</span> Settings</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info" onclick="logout()">
+                    <div class="avatar">A</div>
+                    <div>
+                        <div class="user-name">Admin</div>
+                        <div class="user-role">Sign out</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main">
+            <div class="topbar">
+                <div class="page-title">File Manager</div>
+                <div class="btn-group">
+                    <button class="btn btn-ghost" onclick="navigateTo('/')">🏠 Root</button>
+                </div>
+            </div>
+
+            <div class="content">
+                <!-- Breadcrumb -->
+                <div style="margin-bottom:16px;font-size:13px;color:var(--text-muted)" id="breadcrumb">/</div>
+
+                <!-- File List -->
+                <div class="card" style="padding:0" id="fileListCard">
+                    <div id="fileList">
+                        <div style="padding:20px;color:var(--text-muted)">Loading...</div>
+                    </div>
+                </div>
+
+                <!-- File Editor (hidden by default) -->
+                <div class="card" id="editorCard" style="display:none;margin-top:16px">
+                    <div class="card-header">
+                        <span class="card-title" id="editorTitle">Editing file</span>
+                        <div class="btn-group">
+                            <button class="btn btn-ghost" onclick="closeEditor()">Cancel</button>
+                            <button class="btn btn-primary" onclick="saveFile()">💾 Save</button>
+                        </div>
+                    </div>
+                    <textarea class="code-editor" id="fileEditor"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) window.location.href = '/login';
+
+        let currentPath = '/';
+        let editingPath = null;
+
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        async function navigateTo(path) {
+            currentPath = path;
+            updateBreadcrumb();
+            closeEditor();
+
+            try {
+                const data = await apiFetch(`/api/files?path=${encodeURIComponent(path)}`);
+                renderFiles(data.files || []);
+            } catch (e) {
+                document.getElementById('fileList').innerHTML = `<div style="padding:20px;color:var(--danger)">Error: ${e.message}</div>`;
+            }
+        }
+
+        function renderFiles(files) {
+            const list = document.getElementById('fileList');
+            if (files.length === 0) {
+                list.innerHTML = '<div style="padding:20px;color:var(--text-muted)">Empty directory</div>';
+                return;
+            }
+
+            let html = '';
+
+            // Back button
+            if (currentPath !== '/') {
+                const parent = currentPath.split('/').slice(0, -1).join('/') || '/';
+                html += `<div class="file-item" onclick="navigateTo('${parent}')">
+            <span class="file-icon">⬆️</span>
+            <span class="file-name">..</span>
+            <span class="file-size"></span>
+            <span class="file-date"></span>
+        </div>`;
+            }
+
+            for (const f of files) {
+                const icon = f.isDir ? '📁' : getFileIcon(f.name);
+                const clickAction = f.isDir
+                    ? `navigateTo('${f.path}')`
+                    : `openFile('${f.path}')`;
+
+                html += `<div class="file-item" onclick="${clickAction}">
+            <span class="file-icon">${icon}</span>
+            <span class="file-name">${f.name}</span>
+            <span class="file-size">${f.isDir ? '—' : formatSize(f.size)}</span>
+            <span class="file-date">${f.modTime}</span>
+        </div>`;
+            }
+
+            list.innerHTML = html;
+        }
+
+        function getFileIcon(name) {
+            const ext = name.split('.').pop().toLowerCase();
+            const icons = {
+                js: '📜', json: '📋', md: '📝', html: '🌐', css: '🎨',
+                env: '🔐', txt: '📄', log: '📊', sh: '⚙️', go: '🐹'
+            };
+            return icons[ext] || '📄';
+        }
+
+        function updateBreadcrumb() {
+            const parts = currentPath.split('/').filter(Boolean);
+            let html = '<span style="cursor:pointer" onclick="navigateTo(\'/\')">root</span>';
+            let path = '';
+            for (const p of parts) {
+                path += '/' + p;
+                const pathCopy = path;
+                html += ` / <span style="cursor:pointer;color:var(--text)" onclick="navigateTo('${pathCopy}')">${p}</span>`;
+            }
+            document.getElementById('breadcrumb').innerHTML = html;
+        }
+
+        async function openFile(path) {
+            try {
+                const data = await apiFetch(`/api/files/read?path=${encodeURIComponent(path)}`);
+                editingPath = path;
+                document.getElementById('editorTitle').textContent = path;
+                document.getElementById('fileEditor').value = data.content;
+                document.getElementById('editorCard').style.display = 'block';
+                document.getElementById('editorCard').scrollIntoView({ behavior: 'smooth' });
+            } catch (e) {
+                showToast('Cannot open file: ' + e.message, 'error');
+            }
+        }
+
+        async function saveFile() {
+            if (!editingPath) return;
+            try {
+                const res = await apiFetch('/api/files/write', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        path: editingPath,
+                        content: document.getElementById('fileEditor').value
+                    })
+                });
+                showToast(res.success ? 'File saved' : 'Save failed', res.success ? 'success' : 'error');
+            } catch (e) {
+                showToast('Save failed: ' + e.message, 'error');
+            }
+        }
+
+        function closeEditor() {
+            document.getElementById('editorCard').style.display = 'none';
+            editingPath = null;
+        }
+
+        // Init
+        navigateTo('/');
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings — AbsenPanel</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="logo">A</div><span>AbsenPanel</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/"><span class="icon">📊</span> Dashboard</a>
+                <a href="/console"><span class="icon">🖥️</span> Console</a>
+                <a href="/files"><span class="icon">📁</span> Files</a>
+                <a href="/whatsapp"><span class="icon">💬</span> WhatsApp</a>
+                <a href="/users"><span class="icon">👥</span> Users</a>
+                <a href="/settings" class="active"><span class="icon">⚙️</span> Settings</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info" onclick="logout()">
+                    <div class="avatar">A</div>
+                    <div>
+                        <div class="user-name">Admin</div>
+                        <div class="user-role">Sign out</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main">
+            <div class="topbar">
+                <div class="page-title">Settings</div>
+            </div>
+            <div class="content">
+                <div class="card" style="max-width:480px">
+                    <div class="card-header">
+                        <span class="card-title">Panel Info</span>
+                    </div>
+                    <div style="font-size:13px;color:var(--text-secondary)">
+                        <p>AbsenPanel v1.0.0</p>
+                        <p style="margin-top:8px">Built with Go + Vanilla JS</p>
+                        <p style="margin-top:8px;color:var(--text-muted)">More settings coming soon.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        if (!localStorage.getItem('token')) window.location.href = '/login';
+    </script>
+</body>
+
+</html>

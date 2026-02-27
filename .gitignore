@@ -1,0 +1,16 @@
+# Binary
+absenpanel
+absenpanel.exe
+
+# Database
+data/
+*.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
