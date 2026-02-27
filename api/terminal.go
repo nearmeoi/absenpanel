@@ -7,6 +7,8 @@ import (
 	"os"
 	"os/exec"
 
+	"absenpanel/config"
+
 	"github.com/creack/pty"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -31,6 +33,7 @@ func TerminalHandler(c *gin.Context) {
 	}
 
 	cmd := exec.Command(shell)
+	cmd.Dir = config.Cfg.BotDir
 	cmd.Env = append(os.Environ(), "TERM=xterm-256color")
 
 	ptmx, err := pty.Start(cmd)

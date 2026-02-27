@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Files — AbsenPanel</title>
     <link rel="stylesheet" href="/css/style.css">
+    
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 
 <body>
@@ -15,12 +17,12 @@
                 <div class="logo">A</div><span>AbsenPanel</span>
             </div>
             <nav class="sidebar-nav">
-                <a href="/"><span class="icon">📊</span> Dashboard</a>
-                <a href="/console"><span class="icon">🖥️</span> Console</a>
-                <a href="/files" class="active"><span class="icon">📁</span> Files</a>
-                <a href="/whatsapp"><span class="icon">💬</span> WhatsApp</a>
-                <a href="/users"><span class="icon">👥</span> Users</a>
-                <a href="/settings"><span class="icon">⚙️</span> Settings</a>
+                <a href="/"><i class="ph ph-squares-four icon"></i> Dashboard</a>
+                <a href="/console"><i class="ph ph-terminal icon"></i> Console</a>
+                <a href="/files" class="active"><i class="ph ph-folder icon"></i> Files</a>
+                <a href="/whatsapp"><i class="ph ph-whatsapp-logo icon"></i> WhatsApp</a>
+                <a href="/users"><i class="ph ph-users icon"></i> Users</a>
+                <a href="/settings"><i class="ph ph-gear icon"></i> Settings</a>
             </nav>
             <div class="sidebar-footer">
                 <div class="user-info" onclick="logout()">
@@ -37,7 +39,7 @@
             <div class="topbar">
                 <div class="page-title">File Manager</div>
                 <div class="btn-group">
-                    <button class="btn btn-ghost" onclick="navigateTo('/')">🏠 Root</button>
+                    <button class="btn btn-ghost" onclick="navigateTo('/')"><i class="ph ph-house"></i> Root</button>
                 </div>
             </div>
 
@@ -58,7 +60,7 @@
                         <span class="card-title" id="editorTitle">Editing file</span>
                         <div class="btn-group">
                             <button class="btn btn-ghost" onclick="closeEditor()">Cancel</button>
-                            <button class="btn btn-primary" onclick="saveFile()">💾 Save</button>
+                            <button class="btn btn-primary" onclick="saveFile()"><i class="ph ph-hard-drives"></i> Save</button>
                         </div>
                     </div>
                     <textarea class="code-editor" id="fileEditor"></textarea>
@@ -109,7 +111,7 @@
             if (currentPath !== '/') {
                 const parent = currentPath.split('/').slice(0, -1).join('/') || '/';
                 html += `<div class="file-item" onclick="navigateTo('${parent}')">
-            <span class="file-icon">⬆️</span>
+            <span class="file-icon"><i class="ph ph-arrow-up"></i></span>
             <span class="file-name">..</span>
             <span class="file-size"></span>
             <span class="file-date"></span>
@@ -117,7 +119,7 @@
             }
 
             for (const f of files) {
-                const icon = f.isDir ? '📁' : getFileIcon(f.name);
+                const icon = f.isDir ? '<i class="ph ph-folder"></i>' : getFileIcon(f.name);
                 const clickAction = f.isDir
                     ? `navigateTo('${f.path}')`
                     : `openFile('${f.path}')`;
@@ -136,10 +138,18 @@
         function getFileIcon(name) {
             const ext = name.split('.').pop().toLowerCase();
             const icons = {
-                js: '📜', json: '📋', md: '📝', html: '🌐', css: '🎨',
-                env: '🔐', txt: '📄', log: '📊', sh: '⚙️', go: '🐹'
+                js: '<i class="ph ph-file-js"></i>', 
+                json: '<i class="ph ph-braces"></i>', 
+                md: '<i class="ph ph-file-text"></i>', 
+                html: '<i class="ph ph-file-html"></i>', 
+                css: '<i class="ph ph-file-css"></i>',
+                env: '<i class="ph ph-lock"></i>', 
+                txt: '<i class="ph ph-file-text"></i>', 
+                log: '<i class="ph ph-file-text"></i>', 
+                sh: '<i class="ph ph-terminal-window"></i>', 
+                go: '<i class="ph ph-file-code"></i>'
             };
-            return icons[ext] || '📄';
+            return icons[ext] || '<i class="ph ph-file"></i>';
         }
 
         function updateBreadcrumb() {

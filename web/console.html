@@ -7,6 +7,8 @@
     <title>Console — AbsenPanel</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.min.css">
+    
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 
 <body>
@@ -16,12 +18,12 @@
                 <div class="logo">A</div><span>AbsenPanel</span>
             </div>
             <nav class="sidebar-nav">
-                <a href="/"><span class="icon">📊</span> Dashboard</a>
-                <a href="/console" class="active"><span class="icon">🖥️</span> Console</a>
-                <a href="/files"><span class="icon">📁</span> Files</a>
-                <a href="/whatsapp"><span class="icon">💬</span> WhatsApp</a>
-                <a href="/users"><span class="icon">👥</span> Users</a>
-                <a href="/settings"><span class="icon">⚙️</span> Settings</a>
+                <a href="/"><i class="ph ph-squares-four icon"></i> Dashboard</a>
+                <a href="/console" class="active"><i class="ph ph-terminal icon"></i> Console</a>
+                <a href="/files"><i class="ph ph-folder icon"></i> Files</a>
+                <a href="/whatsapp"><i class="ph ph-whatsapp-logo icon"></i> WhatsApp</a>
+                <a href="/users"><i class="ph ph-users icon"></i> Users</a>
+                <a href="/settings"><i class="ph ph-gear icon"></i> Settings</a>
             </nav>
             <div class="sidebar-footer">
                 <div class="user-info" onclick="logout()">
@@ -39,7 +41,7 @@
                 <div class="page-title">Console</div>
                 <div class="btn-group">
                     <button class="btn btn-ghost" onclick="clearTerminal()">Clear</button>
-                    <button class="btn btn-warning" onclick="sendBotRestart()">🔄 Restart Bot</button>
+                    <button class="btn btn-warning" onclick="sendBotRestart()"><i class="ph ph-arrows-clockwise"></i> Restart Bot</button>
                 </div>
             </div>
 
@@ -63,6 +65,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10.0/lib/addon-fit.min.js"></script>
     <script>
+        
         const token = localStorage.getItem('token');
         if (!token) window.location.href = '/login';
 

@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"absenpanel/config"
+
 	"github.com/gin-gonic/gin"
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/disk"
@@ -104,22 +106,22 @@ func GetBotStatus(c *gin.Context) {
 }
 
 func BotStart(c *gin.Context) {
-	out, err := exec.Command("pm2", "start", "absenbot").CombinedOutput()
+	out, err := exec.Command("pm2", "start", config.Cfg.BotName).CombinedOutput()
 	respondCmd(c, out, err)
 }
 
 func BotStop(c *gin.Context) {
-	out, err := exec.Command("pm2", "stop", "absenbot").CombinedOutput()
+	out, err := exec.Command("pm2", "stop", config.Cfg.BotName).CombinedOutput()
 	respondCmd(c, out, err)
 }
 
 func BotRestart(c *gin.Context) {
-	out, err := exec.Command("pm2", "restart", "absenbot").CombinedOutput()
+	out, err := exec.Command("pm2", "restart", config.Cfg.BotName).CombinedOutput()
 	respondCmd(c, out, err)
 }
 
 func BotKill(c *gin.Context) {
-	out, err := exec.Command("pm2", "delete", "absenbot").CombinedOutput()
+	out, err := exec.Command("pm2", "delete", config.Cfg.BotName).CombinedOutput()
 	respondCmd(c, out, err)
 }
 

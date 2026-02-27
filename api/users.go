@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"absenpanel/config"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,7 +19,7 @@ type BotUser struct {
 }
 
 func ListUsers(c *gin.Context) {
-	usersFile := filepath.Join(basePath, "users.json")
+	usersFile := filepath.Join(config.Cfg.BotDir, "users.json")
 
 	data, err := os.ReadFile(usersFile)
 	if err != nil {

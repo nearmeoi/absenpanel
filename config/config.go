@@ -23,9 +23,11 @@ func getEnv(key, fallback string) string {
 	return fallback
 }
 
+var Cfg *Config
+
 func Load() *Config {
 	port, _ := strconv.Atoi(getEnv("PANEL_PORT", "3001"))
-	return &Config{
+	Cfg = &Config{
 		Port:      port,
 		Env:       getEnv("PANEL_ENV", "development"),
 		JWTSecret: getEnv("PANEL_JWT_SECRET", "absenpanel-secret-change-me"),
@@ -35,4 +37,5 @@ func Load() *Config {
 		BotDir:    getEnv("BOT_DIR", "/home/ubuntu/absenbot"),
 		BotName:   getEnv("BOT_PM2_NAME", "absenbot"),
 	}
+	return Cfg
 }

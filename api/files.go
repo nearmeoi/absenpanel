@@ -9,11 +9,10 @@ import (
 	"sort"
 	"strings"
 
+	"absenpanel/config"
+
 	"github.com/gin-gonic/gin"
 )
-
-// Allowed base directory for file operations
-const basePath = "/home/ubuntu/absenbot"
 
 type FileEntry struct {
 	Name    string `json:"name"`
@@ -25,9 +24,9 @@ type FileEntry struct {
 
 func safePath(requestedPath string) (string, error) {
 	clean := filepath.Clean(requestedPath)
-	full := filepath.Join(basePath, clean)
+	full := filepath.Join(config.Cfg.BotDir, clean)
 	// Prevent path traversal
-	if !strings.HasPrefix(full, basePath) {
+	if !strings.HasPrefix(full, config.Cfg.BotDir) {
 		return "", fmt.Errorf("access denied")
 	}
 	return full, nil
