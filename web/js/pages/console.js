@@ -33,6 +33,13 @@ function createTerminal() {
 
     fitAddon = new FitAddon.FitAddon();
     term.loadAddon(fitAddon);
+
+    // Register input handler ONCE — always reads current termWs
+    term.onData(data => {
+        if (termWs && termWs.readyState === WebSocket.OPEN) {
+            termWs.send(data);
+        }
+    });
 }
 
 function connectTerminal() {
@@ -42,14 +49,11 @@ function connectTerminal() {
     const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
     termWs = new WebSocket(`${wsProtocol}//${location.host}/api/terminal?token=${token}`);
 
-    const statusEl = document.getElementById('connStatus');
-    const reconnBtn = document.getElementById('termReconnBtn');
-
     termWs.onopen = () => {
         termConnected = true;
-        if (statusEl) { statusEl.textContent = 'Connected'; statusEl.style.color = 'var(--success)'; }
-        if (reconnBtn) reconnBtn.style.display = 'none';
+        updateTermStatus('Connected', 'var(--success)', false);
         termWs.send(JSON.stringify({ type: 'resize', cols: term.cols, rows: term.rows }));
+        term.focus();
     };
 
     termWs.onmessage = (e) => {
@@ -62,28 +66,31 @@ function connectTerminal() {
 
     termWs.onclose = () => {
         termConnected = false;
-        if (statusEl) { statusEl.textContent = 'Disconnected'; statusEl.style.color = 'var(--danger)'; }
-        if (reconnBtn) reconnBtn.style.display = '';
+        updateTermStatus('Disconnected', 'var(--danger)', true);
         term.write('\r\n\x1b[31m[Connection closed]\x1b[0m\r\n');
     };
 
     termWs.onerror = () => {
-        if (statusEl) { statusEl.textContent = 'Error'; statusEl.style.color = 'var(--danger)'; }
-        if (reconnBtn) reconnBtn.style.display = '';
+        updateTermStatus('Error', 'var(--danger)', true);
     };
+}
 
-    term.onData(data => {
-        if (termWs && termWs.readyState === WebSocket.OPEN) {
-            termWs.send(data);
-        }
-    });
+function updateTermStatus(text, color, showReconn) {
+    const statusEl = document.getElementById('connStatus');
+    const reconnBtn = document.getElementById('termReconnBtn');
+    if (statusEl) { statusEl.textContent = text; statusEl.style.color = color; }
+    if (reconnBtn) reconnBtn.style.display = showReconn ? '' : 'none';
 }
 
 function reconnectTerminal() {
+    // Close old connection cleanly
     if (termWs) {
+        termWs.onclose = null; // prevent duplicate "Connection closed" message
+        termWs.onerror = null;
         termWs.close();
         termWs = null;
     }
+    termConnected = false;
     term.clear();
     term.write('\x1b[33m[Reconnecting...]\x1b[0m\r\n');
     connectTerminal();
@@ -121,6 +128,7 @@ registerPage('console', {
         }
         term.open(document.getElementById('terminal'));
         fitAddon.fit();
+        term.focus();
 
         if (!termConnected && (!termWs || termWs.readyState !== WebSocket.OPEN)) {
             connectTerminal();
@@ -137,18 +145,14 @@ registerPage('console', {
     },
 
     onShow() {
-        // Re-attach terminal to DOM if it was hidden
         setTimeout(() => {
             if (fitAddon) fitAddon.fit();
-            const statusEl = document.getElementById('connStatus');
-            const reconnBtn = document.getElementById('termReconnBtn');
-            if (termConnected) {
-                if (statusEl) { statusEl.textContent = 'Connected'; statusEl.style.color = 'var(--success)'; }
-                if (reconnBtn) reconnBtn.style.display = 'none';
-            } else {
-                if (statusEl) { statusEl.textContent = 'Disconnected'; statusEl.style.color = 'var(--danger)'; }
-                if (reconnBtn) reconnBtn.style.display = '';
-            }
+            if (term) term.focus();
+            updateTermStatus(
+                termConnected ? 'Connected' : 'Disconnected',
+                termConnected ? 'var(--success)' : 'var(--danger)',
+                !termConnected
+            );
         }, 50);
     }
 });
